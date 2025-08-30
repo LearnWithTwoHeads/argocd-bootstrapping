@@ -8,7 +8,7 @@
   spec:
     project: default
     source:
-      repoURL: https://github.com/learnwithtwoheads/argocd-bootsrapping.git
+      repoURL: https://github.com/learnwithtwoheads/argocd-bootstrapping.git
       targetRevision: main
       path: app-of-apps
     destination:
