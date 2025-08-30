@@ -52,7 +52,6 @@ defaultSyncPolicy:
     selfHeal: true
   syncOptions:
     - CreateNamespace=true
-    - PrunePropagationPolicy=foreground
     - PruneLast=true
 
 # Default retry policy
