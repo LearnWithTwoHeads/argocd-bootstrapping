@@ -1,7 +1,7 @@
 # Global configuration for all applications
 global:
   # Default source repository URL
-  repoURL: https://github.com/learnwithtwoheads/argocd-bootsrapping.git
+  repoURL: https://github.com/learnwithtwoheads/argocd-bootstrapping.git
   # Target revision (branch, tag, or commit)
   targetRevision: main
   # Default destination cluster
