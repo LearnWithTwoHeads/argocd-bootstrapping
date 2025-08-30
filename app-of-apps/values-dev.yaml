@@ -21,11 +21,11 @@ applications:
     # Optional: Override target revision
     # targetRevision: v1.0.0
     # Path within the repository
-    path: applications/typescript-app/overlays/prod
+    path: applications/typescript-app/overlays/dev
     # Optional: Override destination namespace
     # namespace: app1-namespace
     # Optional: Additional annotations for this application
-    namespace: prod
+    namespace: dev
     annotations:
       argocd-image-updater.argoproj.io/image-list: typescript=ghcr.io/learnwithtwoheads/sample-projects/typescript-nodejs-server
       argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/git-creds
