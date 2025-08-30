@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: typescript-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: typescript-app
+  template:
+    metadata:
+      labels:
+        app: typescript-app
+    spec:
+      containers:
+      - image: ghcr.io/learnwithtwoheads/sample-projects/typescript-nodejs-server:main-cdef060
+        imagePullPolicy: IfNotPresent
+        name: typescript-app
+      imagePullSecrets:
+      - name: twoheadsregistry

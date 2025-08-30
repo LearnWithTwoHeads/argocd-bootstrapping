@@ -1,0 +1,90 @@
+{{/*
+Helper template to define an ArgoCD Application
+*/}}
+{{- define "app-of-apps.application" -}}
+{{- $app := .app -}}
+{{- $global := .global -}}
+{{- $project := .project -}}
+{{- $defaultSyncPolicy := .defaultSyncPolicy -}}
+{{- $defaultRetryPolicy := .defaultRetryPolicy -}}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ $app.name }}
+  namespace: argocd
+  {{- if or $app.annotations $app.labels }}
+  {{- if $app.annotations }}
+  annotations:
+    {{- range $key, $value := $app.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  {{- end }}
+  {{- if $app.labels }}
+  labels:
+    {{- range $key, $value := $app.labels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  {{- end }}
+  {{- end }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/foreground
+spec:
+  project: {{ $project }}
+  source:
+    repoURL: {{ $app.repoURL | default $global.repoURL }}
+    targetRevision: {{ $app.targetRevision | default $global.targetRevision }}
+    path: {{ $app.path }}
+    {{- if $app.helm }}
+    helm:
+      {{- if $app.helm.valueFiles }}
+      valueFiles:
+        {{- range $app.helm.valueFiles }}
+        - {{ . }}
+        {{- end }}
+      {{- end }}
+      {{- if $app.helm.values }}
+      values: |
+        {{- $app.helm.values | nindent 8 }}
+      {{- end }}
+      {{- if $app.helm.parameters }}
+      parameters:
+        {{- range $app.helm.parameters }}
+        - name: {{ .name }}
+          value: {{ .value | quote }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+  destination:
+    server: {{ $global.destination.server }}
+    namespace: {{ $app.namespace | default $global.destination.namespace }}
+  syncPolicy:
+    {{- if or $app.syncPolicy $defaultSyncPolicy }}
+    {{- $syncPolicy := $app.syncPolicy | default $defaultSyncPolicy }}
+    {{- if $syncPolicy.automated }}
+    automated:
+      {{- if hasKey $syncPolicy.automated "prune" }}
+      prune: {{ $syncPolicy.automated.prune }}
+      {{- end }}
+      {{- if hasKey $syncPolicy.automated "selfHeal" }}
+      selfHeal: {{ $syncPolicy.automated.selfHeal }}
+      {{- end }}
+    {{- end }}
+    {{- if $syncPolicy.syncOptions }}
+    syncOptions:
+      {{- range $syncPolicy.syncOptions }}
+      - {{ . }}
+      {{- end }}
+    {{- end }}
+    {{- if or $syncPolicy.retry $defaultRetryPolicy }}
+    retry:
+      {{- $retryPolicy := $syncPolicy.retry | default $defaultRetryPolicy }}
+      limit: {{ $retryPolicy.limit }}
+      {{- if $retryPolicy.backoff }}
+      backoff:
+        duration: {{ $retryPolicy.backoff.duration }}
+        factor: {{ $retryPolicy.backoff.factor }}
+        maxDuration: {{ $retryPolicy.backoff.maxDuration }}
+      {{- end }}
+    {{- end }}
+    {{- end }}
+{{- end -}}

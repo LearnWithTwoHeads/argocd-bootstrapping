@@ -1,0 +1,64 @@
+# Global configuration for all applications
+global:
+  # Default source repository URL
+  repoURL: https://github.com/learnwithtwoheads/argocd-bootsrapping.git
+  # Target revision (branch, tag, or commit)
+  targetRevision: main
+  # Default destination cluster
+  destination:
+    server: https://kubernetes.default.svc
+    # Default namespace (can be overridden per application)
+    namespace: default
+
+# ArgoCD project to deploy applications to
+project: default
+
+# List of applications to deploy
+applications:
+  - name: typescript-app
+    # Optional: Override global repository URL
+    # repoURL: https://github.com/different-org/app1.git
+    # Optional: Override target revision
+    # targetRevision: v1.0.0
+    # Path within the repository
+    path: applications/typescript-app/overlays/dev
+    # Optional: Override destination namespace
+    # namespace: app1-namespace
+    # Optional: Additional annotations for this application
+    namespace: dev
+    annotations:
+      argocd-image-updater.argoproj.io/image-list: typescript=ghcr.io/learnwithtwoheads/sample-projects/typescript-nodejs-server
+      argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/git-creds
+      argocd-image-updater.argoproj.io/git-branch: main
+      argocd-image-updater.argoproj.io/update-strategy: newest-build
+      argocd-image-updater.argoproj.io/pull-secret: pullsecret:argocd/github-pull
+      # notifications.argoproj.io/subscribe.on-sync-succeeded.slack: gitops-notifications
+    # Optional: Additional labels
+    labels:
+      # environment: production
+      # team: backend
+    # Optional: Sync policy override
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+        - CreateNamespace=true
+
+# Default sync policy for all applications (can be overridden per app)
+defaultSyncPolicy:
+  automated:
+    prune: true
+    selfHeal: true
+  syncOptions:
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - PruneLast=true
+
+# Default retry policy
+defaultRetryPolicy:
+  limit: 5
+  backoff:
+    duration: 5s
+    factor: 2
+    maxDuration: 3m

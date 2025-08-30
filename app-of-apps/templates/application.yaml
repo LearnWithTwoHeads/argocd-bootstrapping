@@ -1,0 +1,9 @@
+{{/*
+Main template that creates ArgoCD Applications for each application defined in values.yaml
+*/}}
+{{- if .Values.applications }}
+{{- range .Values.applications }}
+---
+{{ include "app-of-apps.application" (dict "app" . "global" $.Values.global "project" $.Values.project "defaultSyncPolicy" $.Values.defaultSyncPolicy "defaultRetryPolicy" $.Values.defaultRetryPolicy) }}
+{{- end }}
+{{- end }}
