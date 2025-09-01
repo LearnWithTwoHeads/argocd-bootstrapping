@@ -13,7 +13,7 @@ spec:
         app: typescript-app
     spec:
       containers:
-      - image: ghcr.io/learnwithtwoheads/sample-projects/typescript-nodejs-server:main-cdef060
+      - image: ghcr.io/learnwithtwoheads/sample-projects/typescript-nodejs-server:sha-8a2df3c
         imagePullPolicy: IfNotPresent
         name: typescript-app
       imagePullSecrets:
