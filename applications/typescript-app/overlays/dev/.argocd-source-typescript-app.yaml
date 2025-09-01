@@ -1,0 +1,3 @@
+kustomize:
+  images:
+  - ghcr.io/learnwithtwoheads/sample-projects/typescript-nodejs-server:sha-a31632a
