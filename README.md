@@ -99,3 +99,61 @@ To add a new application, simply edit `app-of-apps/values.yaml` and add it to th
 ```
 
 The new application will be automatically deployed when the changes are synced.
+
+### Creating Helm Chart Applications
+
+This app-of-apps setup also supports deploying applications from Helm charts, either from public repositories or private charts. Here's how to configure Helm-based applications:
+
+#### Example: Public Helm Chart (e.g., from Bitnami)
+
+```yaml
+- name: postgresql
+  namespace: databases
+  helm:
+    chart: oci://registry-1.docker.io/bitnamicharts/postgresql
+    releaseName: my-postgresql
+    valuesObject:
+      auth:
+        postgresPassword: "my-secure-password"
+      primary:
+        persistence:
+          size: 10Gi
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+```
+
+#### Example: Helm Chart from Git Repository
+
+```yaml
+- name: my-helm-app
+  path: charts/my-app  # Path to your Helm chart in the repository
+  namespace: my-namespace
+  helm:
+    releaseName: my-app-release
+    valuesObject:
+      image:
+        tag: "v1.0.0"
+      service:
+        type: LoadBalancer
+      resources:
+        requests:
+          memory: "256Mi"
+          cpu: "250m"
+```
+
+#### Key Helm Configuration Options
+
+- **`helm.chart`**: The Helm chart reference (for charts from registries like OCI or traditional repositories)
+- **`path`**: Use this instead of `helm.chart` when the chart is stored in your Git repository
+- **`helm.releaseName`**: The name of the Helm release (defaults to the application name if not specified)
+- **`helm.valuesObject`**: Inline Helm values to override chart defaults (equivalent to `--set` or `-f values.yaml`)
+
+#### Differences from Path-based Applications
+
+- **Path-based applications** (like the current typescript-app example) use Kustomize or raw Kubernetes manifests
+- **Helm-based applications** use Helm charts and can leverage Helm's templating and packaging features
+- Both types can be mixed within the same app-of-apps configuration
