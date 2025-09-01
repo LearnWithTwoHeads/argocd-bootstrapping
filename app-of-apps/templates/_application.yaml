@@ -33,25 +33,17 @@ spec:
   source:
     repoURL: {{ $app.repoURL | default $global.repoURL }}
     targetRevision: {{ $app.targetRevision | default $global.targetRevision }}
+    {{- if and $app.helm $app.helm.chart }}
+    chart: {{ $app.helm.chart }}
+    {{- else }}
     path: {{ $app.path }}
+    {{- end }}
     {{- if $app.helm }}
     helm:
-      {{- if $app.helm.valueFiles }}
-      valueFiles:
-        {{- range $app.helm.valueFiles }}
-        - {{ . }}
-        {{- end }}
-      {{- end }}
-      {{- if $app.helm.values }}
-      values: |
-        {{- $app.helm.values | nindent 8 }}
-      {{- end }}
-      {{- if $app.helm.parameters }}
-      parameters:
-        {{- range $app.helm.parameters }}
-        - name: {{ .name }}
-          value: {{ .value | quote }}
-        {{- end }}
+      releaseName: {{ $app.helm.releaseName }}
+      {{- if $app.helm.valuesObject }}
+      valuesObject:
+        {{- $app.helm.valuesObject | toYaml | nindent 8 }}
       {{- end }}
     {{- end }}
   destination:
