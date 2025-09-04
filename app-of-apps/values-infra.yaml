@@ -1,0 +1,73 @@
+# Global configuration for all applications
+global:
+  # Default source repository URL
+  repoURL: https://github.com/learnwithtwoheads/argocd-bootstrapping.git
+  # Target revision (branch, tag, or commit)
+  targetRevision: main
+  # Default destination cluster
+  destination:
+    server: https://kubernetes.default.svc
+    # Default namespace (can be overridden per application)
+    namespace: default
+
+# ArgoCD project to deploy applications to
+project: default
+
+# List of applications to deploy
+applications:
+  - name: kubernetes-event-exporter
+    targetRevision: 3.6.3
+    repoURL: oci://registry-1.docker.io/bitnamicharts/kubernetes-event-exporter
+    path: .
+    namespace: monitoring
+    helm:
+      releaseName: kubernetes-event-exporter
+      valuesObject:
+        extraEnvVars:
+        - name: SLACK_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: slack
+              key: token
+        config:
+          logLevel: debug
+          logFormat: json
+          maxEventAgeSeconds: 10
+          kubeQPS: 60
+          kubeBurst: 60
+          route:
+            routes:
+              - match:
+                  - kind: "Application"
+                    apiVersion: "argoproj.io/v1alpha1"
+                    receiver: "slack"
+                    type: "Normal"
+                    reason: "ImagesUpdated"
+          receivers:
+            - name: "slack"
+              slack:
+                token: "${SLACK_TOKEN}"
+                channel: "#general"
+                message: "Received a Kubernetes Event {{ .Message}}"
+                fields:
+                  message: "{{ .Message }}"
+                  namespace: "{{ .Namespace }}"
+                  reason: "{{ .Reason }}"
+                  object: "{{ .Namespace }}"
+
+# Default sync policy for all applications (can be overridden per app)
+defaultSyncPolicy:
+  automated:
+    prune: true
+    selfHeal: true
+  syncOptions:
+    - CreateNamespace=true
+    - PruneLast=true
+
+# Default retry policy
+defaultRetryPolicy:
+  limit: 5
+  backoff:
+    duration: 5s
+    factor: 2
+    maxDuration: 3m

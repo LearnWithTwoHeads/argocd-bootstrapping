@@ -157,3 +157,9 @@ This app-of-apps setup also supports deploying applications from Helm charts, ei
 - **Path-based applications** (like the current typescript-app example) use Kustomize or raw Kubernetes manifests
 - **Helm-based applications** use Helm charts and can leverage Helm's templating and packaging features
 - Both types can be mixed within the same app-of-apps configuration
+
+#### How does this affect the **bottom line**?
+
+In today's world as software engineers, it has been increasingly important to have a central pane of glass for everything that you are responsible for. With Kubernetes, there really is no standard as far as how one should deploy/manage software on it, but a growing acceptance of GitOps as a best practice for it.
+
+This repo allows for creating that central pane of glass for developers and operators to manage software on Kubernetes with an easy to understand top-level configuration. So it will save devs/operators from cognitive overload of looking at many different sources, and in the end save **time**, while also preventing common mistakes because of lack of standard.
